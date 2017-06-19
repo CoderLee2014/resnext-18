@@ -1,0 +1,66 @@
+<html>
+<head>
+<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="static/canvasResize.js"></script>
+<script src="static/binaryajax.js"></script>
+<script src="static/exif.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="static/demo.css">
+<title>Demo</title>
+</head>
+
+<body>
+<div class="center-div">
+    <div class="container-fluid">
+    <form>
+      <h2>Identity Card</h2>
+      <br>
+      <div class="btn-group btn-group-lg" role="group">
+      <label class="btn btn-info btn-lg">
+          Camera <input type="file" style="display: none;" id="image" accept="image/*" capture="user" name="image">
+      </label>
+      </div>
+      <div><hr></hr></div>
+      <h2 id="result" style="visibility: hidden"></h2>
+      <center> <img alt="id card photo" id="photo" class="img-fluid img-thumbnail" height="60%" style="visibility: hidden"> </center>
+      <div class="btn-group btn-group-lg" role="group">
+      <button class="btn btn-info btn-lg" type="submit" id="btn-submit" role="button" style="visibility: hidden"> Run </button>
+      </div>
+    </form>
+    </div>
+</div>
+<script type="text/javascript">
+function onCaptureChanged(e) {
+    result = document.getElementById("result");
+    result.style.visibility = "hidden";
+    photo = document.getElementById("photo");
+    photo.style.visibility = "hidden";
+    var file = e.target.files[0];
+    canvasResize(file, {
+        width: 512,
+        height: 0,
+        crop: false,
+        quality: 90,
+        callback: function(data, width, height) {
+            $.post({
+                url: '/detect',
+                data: {image: data},
+                success: function(rv) {
+                    result = document.getElementById("result");
+                    result.style.visibility = "visible";
+                    result.textContent = rv;
+                    photo = document.getElementById("photo");
+                    photo.style.visibility = "visible";
+                    photo.src = data;
+                }
+            })
+        }
+    });
+}
+
+$('#image').change(onCaptureChanged);
+</script>
+</body>
+</html>
